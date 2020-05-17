@@ -17,6 +17,7 @@ function Course(props) {
 
     return (
         <div>
+            {console.log(props.url)}
             <Card border="primary">
                 <Card.Header>{props.name}</Card.Header>
                 <Card.Body>

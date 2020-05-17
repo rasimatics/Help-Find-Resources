@@ -4,7 +4,7 @@ import { Button, Modal, Form, Col, Row } from 'react-bootstrap'
 import axios from 'axios'
 
 
-function AddCourse() {
+function AddCourse(props) {
     const [show, setShow] = useState(false);
     const [title, setTitle] = useState("")
     const [titleError, setTitleError] = useState("")
@@ -34,7 +34,8 @@ function AddCourse() {
                     confirmed: false
 
                 }).then((response) => {
-                    console.log(response);
+                    props.showAlert()
+                    console.log(response)
                 }, (error) => {
                     console.log(error);
                 });

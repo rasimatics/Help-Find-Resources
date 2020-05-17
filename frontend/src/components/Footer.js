@@ -1,11 +1,11 @@
 import React from 'react';
-import {Container} from 'react-bootstrap'
+import { Navbar, Nav, NavDropdown } from 'react-bootstrap'
 
 function Footer() {
   return (
-    <Container>
-      Footer
-    </Container>
+    <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+      <Navbar.Brand className="m-auto">Developed By Rasim Mammadov</Navbar.Brand>
+    </Navbar>
   );
 }
 

@@ -5,8 +5,7 @@ from rest_framework.response import Response
 from .models import Resource, Url
 from .serializer import UrlSerializer, ResourceSerializer
 from rest_framework.views import APIView
-from  rest_framework import filters
-
+from itertools import chain
 # Get all posts
 class allPosts(APIView):
     def get(self,request):
@@ -57,11 +56,52 @@ class getPost(APIView):
 
 # Get search result
 class searchPosts(APIView):
-    def get(self,request, search):
-        posts = Resource.objects.filter(Q(title__icontains=search) |
-                                        Q(url__url__icontains=search) |
-                                        Q(description__icontains=search)).distinct()
-        serializer = ResourceSerializer(posts, many=True)
+    def get(self,request):
+        searchWords = request.GET.get("q").split()
+        posts = []
+        for word in searchWords:
+            postTitle = Resource.objects.filter(title=word)
+            postTitle2 = Resource.objects.filter(title__startswith=word)
+            postTitle3 = Resource.objects.filter(title__icontains=word)
+            postLink = Resource.objects.filter(url__url__icontains=word)
+            postLink2 = Resource.objects.filter(url__title__in = word)
+            postDesc = Resource.objects.filter(description=word)
+            postDesc2 = Resource.objects.filter(description__startswith=word)
+            postDesc3 = Resource.objects.filter(description__icontains=word)
+
+            for elem in postTitle:
+                posts.append(elem)
+
+            for elem in postLink2:
+                posts.append(elem)
+
+            for elem in postDesc:
+                posts.append(elem)
+
+            for elem in postTitle2:
+                posts.append(elem)
+
+            for elem in postDesc2:
+                posts.append(elem)
+
+            for elem in postTitle3:
+                posts.append(elem)
+
+            for elem in postDesc3:
+                posts.append(elem)
+
+            for elem in postLink:
+                posts.append(elem)
+
+
+        result = []
+        for post in posts:
+            if(post in result):
+                continue
+            else:
+                result.append(post)
+
+        serializer = ResourceSerializer(result, many=True)
         return Response(serializer.data)
 
 

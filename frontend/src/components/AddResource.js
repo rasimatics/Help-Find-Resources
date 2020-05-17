@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 
-function AddResource() {
+function AddResource(props) {
     const [show, setShow] = useState(false);
     const [title, setTitle] = useState("")
     const [titleError, setTitleError] = useState("")
@@ -18,6 +18,8 @@ function AddResource() {
     const handleClose = () => {
         setShow(false);
         setUrls([""])
+        setTitleError("")
+        setUrlError("")
     }
     const handleShow = () => setShow(true);
 
@@ -29,7 +31,7 @@ function AddResource() {
     const addResource = (e) => {
         e.preventDefault()
         if (title === "") setTitleError("Adı daxil edin")
-        else if (urls.length === 0) setUrlError("Linki daxil edin")
+        else if (urls.length === 1 && urls[0]==="") setUrlError("Linki daxil edin")
         else {
             const oldUrls = [...urls]
             const modifiedUrl = oldUrls.filter((url) => url !== "")
@@ -41,12 +43,12 @@ function AddResource() {
                     confirmed: false,
                     like:0
                 }).then((response) => {
-                    console.log(response);
+                    props.showAlert()
+                    console.log(response)
                 }, (error) => {
-                    console.log(error);
+                    console.log(error)
                 });
             handleClose()
-            // setTimeout(()=>window.location.reload(),1000)
         }
     }
     const handleChange = (index, event) => {

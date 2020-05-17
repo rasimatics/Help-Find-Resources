@@ -1,52 +1,85 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Form, FormControl, Button } from 'react-bootstrap'
+import { Container, Row, Form, FormControl, Button, Alert } from 'react-bootstrap'
 import axios from 'axios'
-import Resource from '../components/Resource'
-import AddResource from '../components/AddResource'
+import Resource from './Resource'
+import AddResource from './AddResource'
+import Pages from './Pages'
 
 function Resources() {
   const [resources, setResources] = useState([])
-  const [text, setText] = useState("")
+  const [items, setItems] = useState([])
+  const [show, setShow] = useState(false);
+  const [showpages, setShowpages] = useState(true)
+
+  const navigate = (i, postPerpage) => {
+    setItems(resources.slice((i - 1) * postPerpage, i * postPerpage))
+  }
+
 
   useEffect(() => {
     const fetchData = async () => {
       const response = await axios.get('http://127.0.0.1:8000/posts/');
       setResources(response.data)
+      setItems(response.data.slice(0, 5))
     }
 
     fetchData();
   }, []);
 
   const search = (e) => {
-    e.preventDefault()
-    axios.get("http://127.0.0.1:8000/search/" + text+"/").then((response) => {
-      response.data.length > 0 ? setResources(response.data) : setResources([])
+    let result = resources
+    let searchText = e.target.value.trim()
+    if (searchText.length !== 0) {
+      setShowpages(false)
+      let words = searchText.split(" ");
+      result = result.filter(item => {
+        return item.title.toLowerCase().includes(searchText.toLowerCase())
+      })
+    }else{setShowpages(true)}
 
-    })
+    setItems(result)
   }
 
+  const showAlert = () => {
+    setShow(true)
+  }
 
   return (
     <div>
       <Container>
         <Row>
 
-          <Form onSubmit={search} inline className="m-auto">
-            <FormControl onChange={e => setText(e.target.value)} type="text" placeholder="Axtarış" className="mr-sm-2" name="q"/>
-            <Button type="submit" variant="outline-success">Axtar</Button>
+          <Form inline className="m-auto">
+            <FormControl
+              onChange={search}
+              type="text" placeholder="Axtarış" className="mr-sm-2" name="q" />
           </Form>
 
-          <AddResource />
+          <AddResource showAlert={showAlert} />
 
         </Row>
+        <br />
+        {show &&
+          <Alert variant="success" dismissible onClose={() => setShow(false)}>
+            <Alert.Heading>Paylaşdığınız üçün təşəkkür edirik</Alert.Heading>
+            <p>
+              Tezliklə paylaşımınız təsdiqlənəcək
+          </p>
+          </Alert>
+        }
       </Container><hr></hr>
+
       <Container style={{ maxWidth: "52rem" }}>
-        {resources.length > 0 ? resources.map(resource =>
-          resource.confirmed && <Resource key={resource.id} id={resource.id} confirmed={resource.confirmed} urls={resource.urls} like={resource.like} title={resource.title} description={resource.description} />)
-        : 
-          <h1>Heç bir nəticə tapılmadı</h1>
+        {items.length > 0 ? items.map(resource =>
+          //  resource.confirmed && 
+          <Resource key={resource.id} id={resource.id} confirmed={resource.confirmed} urls={resource.urls} like={resource.like} title={resource.title} description={resource.description} />)
+          :
+          <Alert variant="danger">
+            Təəssüf ki heç bir nəticə tapılmadı
+          </Alert>
         }
       </Container>
+      {showpages&& <Pages items={resources} navigate={navigate} />}
     </div>
   );
 }
